@@ -3,20 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Kyla's Math Game ⭐</title>
+<title>Kyla's No-Trick Math ⭐</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
 :root {
-  --bg: #fdf6ff;
-  --primary: #a855f7;
-  --secondary: #f59e0b;
+  --bg: #f8f7ff;
   --green: #22c55e;
   --red: #ef4444;
-  --blue: #3b82f6;
-  --text: #1e1b2e;
-  --muted: #9ca3af;
+  --text: #1a1a2e;
+  --muted: #94a3b8;
+  /* mode colors */
+  --add-primary: #10b981;
+  --add-light: #d1fae5;
+  --add-dark: #065f46;
+  --sub-primary: #f97316;
+  --sub-light: #ffedd5;
+  --sub-dark: #7c2d12;
+  --mul-primary: #a855f7;
+  --mul-light: #f3e8ff;
+  --mul-dark: #4c1d95;
+  --fam-primary: #e879f9;
 }
 
 body {
@@ -36,143 +44,201 @@ body::before {
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(ellipse at 20% 10%, rgba(168,85,247,0.12) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 90%, rgba(245,158,11,0.10) 0%, transparent 50%),
-    radial-gradient(ellipse at 60% 40%, rgba(59,130,246,0.07) 0%, transparent 40%);
+    radial-gradient(ellipse at 10% 10%, rgba(16,185,129,0.08) 0%, transparent 45%),
+    radial-gradient(ellipse at 90% 20%, rgba(249,115,22,0.08) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 90%, rgba(168,85,247,0.08) 0%, transparent 45%);
   pointer-events: none;
   z-index: 0;
 }
 
-.screen { display: none; width: 100%; max-width: 420px; position: relative; z-index: 1; }
-.screen.active { display: flex; flex-direction: column; align-items: center; }
+.screen { display:none; width:100%; max-width:420px; position:relative; z-index:1; }
+.screen.active { display:flex; flex-direction:column; align-items:center; }
 
-@media (min-width: 600px) {
-  .screen { max-width: 560px; }
-  .game-title { font-size: 3.6rem; }
-  .problem-display { font-size: 7rem; }
-  .choice-btn { font-size: 3.4rem; padding: 44px 10px; }
-  .card { padding: 44px 40px 36px; }
-  .btn-start, .btn-play-again { font-size: 1.9rem; padding: 24px; }
-  .mastery-chip { font-size: 0.9rem; padding: 7px 13px; }
-  .score-pill { font-size: 1.1rem; padding: 10px 20px; }
-  .streak-display { font-size: 1rem; padding: 10px 20px; }
-  .choices { gap: 20px; }
-  .result-stat .r-val { font-size: 2.4rem; }
+@media (min-width:600px) {
+  .screen { max-width:560px; }
+  .game-title { font-size:3.6rem; }
+  .problem-display { font-size:7rem; }
+  .choice-btn { font-size:3.4rem; padding:44px 10px; }
+  .card { padding:44px 40px 36px; }
+  .btn-mode { padding:28px 10px; }
+  .btn-mode .mode-icon { font-size:2.6rem; }
+  .btn-mode .mode-name { font-size:1.5rem; }
+  .score-pill { font-size:1.05rem; padding:10px 20px; }
+  .streak-display { font-size:1rem; padding:10px 20px; }
+  .choices { gap:20px; }
+  .mastery-chip { font-size:0.88rem; padding:7px 13px; }
+  .result-stat .r-val { font-size:2.4rem; }
+  .btn-play-again, .btn-home { font-size:1.5rem; padding:20px; }
 }
 
-/* START */
-.star-ring { font-size: 4rem; animation: float 3s ease-in-out infinite; margin-bottom: 10px; }
-@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+/* ===== START SCREEN ===== */
+.brain-emoji { font-size:4.5rem; animation:float 3s ease-in-out infinite; margin-bottom:12px; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
 
 .game-title {
-  font-family: 'Fredoka One', sans-serif;
-  font-size: 2.8rem;
-  background: linear-gradient(135deg, #a855f7, #3b82f6, #f59e0b);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  line-height: 1.1;
-  text-align: center;
-  margin-bottom: 6px;
+  font-family:'Fredoka One',sans-serif;
+  font-size:2.8rem;
+  background:linear-gradient(135deg,#10b981,#a855f7,#f97316);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  line-height:1.1;
+  text-align:center;
+  margin-bottom:6px;
 }
-.game-sub { font-size:1rem; color:var(--muted); font-weight:700; text-align:center; margin-bottom:28px; }
 
-.info-cards { display:flex; gap:10px; width:100%; margin-bottom:28px; }
-.info-card { flex:1; background:white; border-radius:18px; padding:14px 10px; text-align:center; box-shadow:0 4px 16px rgba(0,0,0,0.08); }
-.info-card .icon { font-size:1.6rem; margin-bottom:4px; }
-.info-card .lbl { font-size:0.7rem; font-weight:800; color:var(--muted); letter-spacing:0.05em; text-transform:uppercase; }
-.info-card .val { font-family:'Fredoka One',sans-serif; font-size:1.3rem; color:var(--text); }
+.game-sub { font-size:0.95rem; color:var(--muted); font-weight:700; text-align:center; margin-bottom:30px; line-height:1.4; }
 
-.btn-start { width:100%; padding:20px; background:linear-gradient(135deg,#a855f7,#7c3aed); color:white; font-family:'Fredoka One',sans-serif; font-size:1.6rem; border:none; border-radius:20px; cursor:pointer; box-shadow:0 8px 24px rgba(168,85,247,0.4); transition:transform 0.15s; }
-.btn-start:active { transform:scale(0.97); }
+.mode-label { font-size:0.72rem; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:14px; align-self:flex-start; }
 
-.facts-preview { margin-top:20px; background:white; border-radius:18px; padding:16px; width:100%; box-shadow:0 4px 16px rgba(0,0,0,0.06); }
-.facts-preview-title { font-size:0.7rem; font-weight:800; color:var(--muted); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:10px; text-align:center; }
-.facts-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
-.fact-chip { background:var(--bg); border-radius:10px; padding:6px 4px; text-align:center; font-family:'Fredoka One',sans-serif; font-size:0.85rem; color:var(--primary); }
+.mode-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; width:100%; margin-bottom:10px; }
 
-/* GAME */
+.btn-mode {
+  padding:22px 8px;
+  border:3px solid transparent;
+  border-radius:22px;
+  font-family:'Fredoka One',sans-serif;
+  cursor:pointer;
+  transition:transform 0.15s, box-shadow 0.15s;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+}
+.btn-mode:active { transform:scale(0.94); }
+
+.btn-mode.add { background:linear-gradient(135deg,#d1fae5,#a7f3d0); color:var(--add-dark); border-color:#6ee7b7; box-shadow:0 6px 20px rgba(16,185,129,0.22); }
+.btn-mode.sub { background:linear-gradient(135deg,#ffedd5,#fed7aa); color:var(--sub-dark); border-color:#fdba74; box-shadow:0 6px 20px rgba(249,115,22,0.22); }
+.btn-mode.mul { background:linear-gradient(135deg,#f3e8ff,#e9d5ff); color:var(--mul-dark); border-color:#d8b4fe; box-shadow:0 6px 20px rgba(168,85,247,0.22); }
+
+.btn-mode .mode-icon { font-size:2.2rem; }
+.btn-mode .mode-name { font-size:1.1rem; }
+.btn-mode .mode-count { font-size:0.65rem; font-family:'Nunito',sans-serif; font-weight:800; opacity:0.65; }
+
+.hint-box {
+  width:100%;
+  background:white;
+  border-radius:18px;
+  padding:16px 18px;
+  margin-top:16px;
+  box-shadow:0 4px 16px rgba(0,0,0,0.06);
+}
+.hint-box-title { font-size:0.7rem; font-weight:800; color:var(--muted); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:8px; }
+.hint-box p { font-size:0.85rem; font-weight:700; color:#475569; line-height:1.5; }
+
+/* ===== GAME SCREEN ===== */
 .top-bar { width:100%; display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+
 .score-pill { background:white; border-radius:100px; padding:8px 16px; display:flex; align-items:center; gap:6px; font-weight:800; font-size:0.9rem; box-shadow:0 3px 12px rgba(0,0,0,0.08); }
 .score-pill.correct .val { color:var(--green); }
 .score-pill.wrong .val { color:var(--red); }
-.streak-display { background:linear-gradient(135deg,#f59e0b,#f97316); border-radius:100px; padding:8px 16px; font-weight:800; font-size:0.85rem; color:white; box-shadow:0 3px 12px rgba(245,158,11,0.35); }
+
+.streak-display { border-radius:100px; padding:8px 16px; font-weight:800; font-size:0.85rem; color:white; }
+.streak-display.add { background:linear-gradient(135deg,#10b981,#059669); box-shadow:0 3px 12px rgba(16,185,129,0.35); }
+.streak-display.sub { background:linear-gradient(135deg,#f97316,#ea580c); box-shadow:0 3px 12px rgba(249,115,22,0.35); }
+.streak-display.mul { background:linear-gradient(135deg,#a855f7,#7c3aed); box-shadow:0 3px 12px rgba(168,85,247,0.35); }
 .streak-display.bump { animation:bump 0.3s ease; }
 @keyframes bump { 0%,100%{transform:scale(1)} 50%{transform:scale(1.18)} }
 
 .progress-track { width:100%; height:8px; background:rgba(0,0,0,0.08); border-radius:100px; margin-bottom:18px; overflow:hidden; }
-.progress-fill { height:100%; background:linear-gradient(90deg,#a855f7,#3b82f6); border-radius:100px; transition:width 0.5s cubic-bezier(.34,1.56,.64,1); }
+.progress-fill { height:100%; border-radius:100px; transition:width 0.5s cubic-bezier(.34,1.56,.64,1); }
+.progress-fill.add { background:linear-gradient(90deg,#10b981,#0ea5e9); }
+.progress-fill.sub { background:linear-gradient(90deg,#f97316,#ef4444); }
+.progress-fill.mul { background:linear-gradient(90deg,#a855f7,#3b82f6); }
 
 .card { width:100%; background:white; border-radius:28px; padding:32px 28px 28px; text-align:center; box-shadow:0 12px 40px rgba(0,0,0,0.10); margin-bottom:18px; position:relative; overflow:hidden; }
-.card-stripe { position:absolute; top:0; left:0; right:0; height:5px; background:linear-gradient(90deg,#a855f7,#3b82f6,#22c55e,#f59e0b,#ef4444); }
+.card-stripe { position:absolute; top:0; left:0; right:0; height:5px; }
+.card-stripe.add { background:linear-gradient(90deg,#10b981,#0ea5e9,#6366f1); }
+.card-stripe.sub { background:linear-gradient(90deg,#f97316,#ef4444,#ec4899); }
+.card-stripe.mul { background:linear-gradient(90deg,#a855f7,#3b82f6,#22c55e,#f59e0b); }
+
 .question-label { font-size:0.68rem; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
+
 .problem-display { font-family:'Fredoka One',sans-serif; font-size:5rem; line-height:1; color:var(--text); }
-.problem-display .times { color:var(--primary); }
+.op.add { color:var(--add-primary); }
+.op.sub { color:var(--sub-primary); }
+.op.mul { color:var(--mul-primary); }
+.op.fam { color:#e879f9; letter-spacing:0.05em; }
+
+/* Fact family triangle widget */
+.fam-widget { width:100%; display:flex; flex-direction:column; align-items:center; gap:0; }
+.fam-triangle-wrap { position:relative; width:220px; height:190px; margin:0 auto; }
+.fam-num {
+  position:absolute;
+  width:68px; height:68px;
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Fredoka One',sans-serif;
+  font-size:2rem;
+  box-shadow:0 6px 18px rgba(0,0,0,0.10);
+  transition:transform 0.2s;
+}
+.fam-num.top  { top:0;   left:50%; transform:translateX(-50%); background:linear-gradient(135deg,#f9a8d4,#f472b6); color:#831843; }
+.fam-num.left { bottom:0; left:0;  background:linear-gradient(135deg,#a5f3fc,#22d3ee); color:#164e63; }
+.fam-num.right{ bottom:0; right:0; background:linear-gradient(135deg,#bbf7d0,#4ade80); color:#14532d; }
+.fam-num.mystery {
+  background:linear-gradient(135deg,#e879f9,#a855f7) !important;
+  color:white !important;
+  animation:mysteryPulse 1.5s ease-in-out infinite;
+  font-size:2.4rem;
+}
+@keyframes mysteryPulse { 0%,100%{transform:translateX(-50%) scale(1)} 50%{transform:translateX(-50%) scale(1.1)} }
+@keyframes mysteryPulseLR { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+.fam-num.mystery.left,.fam-num.mystery.right { animation:mysteryPulseLR 1.5s ease-in-out infinite; }
+
+.fam-lines { position:absolute; inset:0; }
+.fam-equation { font-family:'Fredoka One',sans-serif; font-size:1.5rem; color:var(--text); margin-top:8px; text-align:center; }
+.fam-equation .fam-blank { color:#e879f9; font-size:1.8rem; }
 
 .card.shake { animation:cardShake 0.4s ease; }
 @keyframes cardShake { 0%,100%{transform:translateX(0)} 15%{transform:translateX(-10px)} 30%{transform:translateX(10px)} 45%{transform:translateX(-8px)} 60%{transform:translateX(8px)} 75%{transform:translateX(-4px)} 90%{transform:translateX(4px)} }
 .card.pop { animation:cardPop 0.35s cubic-bezier(.34,1.56,.64,1); }
 @keyframes cardPop { 0%{transform:scale(1)} 50%{transform:scale(1.05)} 100%{transform:scale(1)} }
 
-/* CHOICES */
 .choices { display:grid; grid-template-columns:1fr 1fr; gap:16px; width:100%; }
 
 .choice-btn {
-  background: white;
-  border: 3px solid #e5e7eb;
-  border-radius: 20px;
-  padding: 36px 10px;
-  font-family: 'Fredoka One', sans-serif;
-  font-size: 2.8rem;
-  color: var(--text);
-  cursor: pointer;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.07);
-  transition: transform 0.12s, border-color 0.15s, background 0.15s;
-  -webkit-user-select: none;
-  user-select: none;
+  background:white;
+  border:3px solid #e2e8f0;
+  border-radius:20px;
+  padding:36px 10px;
+  font-family:'Fredoka One',sans-serif;
+  font-size:2.8rem;
+  color:var(--text);
+  cursor:pointer;
+  box-shadow:0 4px 14px rgba(0,0,0,0.07);
+  transition:transform 0.12s, border-color 0.15s, background 0.15s;
+  -webkit-user-select:none;
+  user-select:none;
 }
-.choice-btn:not(:disabled):active { transform: scale(0.93); }
-
-.choice-btn.correct-choice {
-  background: #dcfce7;
-  border-color: var(--green);
-  color: var(--green);
-  transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(34,197,94,0.25);
-}
-.choice-btn.wrong-choice {
-  background: #fee2e2;
-  border-color: var(--red);
-  color: var(--red);
-  animation: btnShake 0.35s ease;
-}
-.choice-btn.reveal-correct {
-  background: #dcfce7;
-  border-color: var(--green);
-  color: var(--green);
-}
-.choice-btn:disabled { cursor: default; }
+.choice-btn:not(:disabled):active { transform:scale(0.93); }
+.choice-btn.correct-choice { background:#dcfce7; border-color:var(--green); color:var(--green); transform:scale(1.05); box-shadow:0 6px 20px rgba(34,197,94,0.25); }
+.choice-btn.wrong-choice { background:#fee2e2; border-color:var(--red); color:var(--red); animation:btnShake 0.35s ease; }
+.choice-btn.reveal-correct { background:#dcfce7; border-color:var(--green); color:var(--green); }
+.choice-btn:disabled { cursor:default; }
 @keyframes btnShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
 
-/* MASTERY */
 .mastery-row { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-bottom:16px; width:100%; }
-.mastery-chip { font-family:'Fredoka One',sans-serif; font-size:0.78rem; padding:5px 10px; border-radius:100px; background:#e5e7eb; color:#9ca3af; transition:background 0.3s,color 0.3s,transform 0.2s; }
-.mastery-chip.seen { background:#dbeafe; color:var(--blue); }
+.mastery-chip { font-family:'Fredoka One',sans-serif; font-size:0.72rem; padding:5px 9px; border-radius:100px; background:#e2e8f0; color:#94a3b8; transition:background 0.3s,color 0.3s,transform 0.2s; }
+.mastery-chip.seen { background:#dbeafe; color:#3b82f6; }
 .mastery-chip.learned { background:#dcfce7; color:var(--green); transform:scale(1.05); }
+.mastery-chip.fam { background:#fdf4ff; color:#a21caf; border:1px solid #e879f9; }
 
-/* TOAST */
-.toast { position:fixed; top:30px; left:50%; transform:translateX(-50%) translateY(-80px); background:var(--green); color:white; font-family:'Fredoka One',sans-serif; font-size:1.3rem; padding:12px 28px; border-radius:100px; box-shadow:0 8px 24px rgba(0,0,0,0.15); transition:transform 0.35s cubic-bezier(.34,1.56,.64,1); z-index:100; white-space:nowrap; }
+.toast { position:fixed; top:30px; left:50%; transform:translateX(-50%) translateY(-80px); color:white; font-family:'Fredoka One',sans-serif; font-size:1.3rem; padding:12px 28px; border-radius:100px; box-shadow:0 8px 24px rgba(0,0,0,0.15); transition:transform 0.35s cubic-bezier(.34,1.56,.64,1); z-index:100; white-space:nowrap; }
 .toast.show { transform:translateX(-50%) translateY(0); }
-.toast.wrong-toast { background:var(--red); }
+.toast.good { background:var(--green); }
+.toast.bad { background:var(--red); }
 
-/* CONFETTI */
 .confetti-wrap { position:fixed; inset:0; pointer-events:none; z-index:50; overflow:hidden; }
 .confetti-piece { position:absolute; animation:confettiFall linear forwards; }
 @keyframes confettiFall { 0%{transform:translateY(-20px) rotate(0deg);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
 
-/* RESULTS */
+/* ===== RESULTS ===== */
 .trophy { font-size:5rem; animation:float 3s ease-in-out infinite; margin-bottom:10px; text-align:center; }
-.result-title { font-family:'Fredoka One',sans-serif; font-size:2.2rem; background:linear-gradient(135deg,#a855f7,#f59e0b); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; text-align:center; margin-bottom:4px; }
+.result-title { font-family:'Fredoka One',sans-serif; font-size:2.2rem; -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; text-align:center; margin-bottom:4px; }
+.result-title.add { background:linear-gradient(135deg,#10b981,#0ea5e9); }
+.result-title.sub { background:linear-gradient(135deg,#f97316,#ef4444); }
+.result-title.mul { background:linear-gradient(135deg,#a855f7,#f59e0b); }
 .result-msg { font-size:0.95rem; font-weight:700; color:var(--muted); text-align:center; margin-bottom:24px; }
 .result-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; width:100%; margin-bottom:20px; }
 .result-stat { background:white; border-radius:20px; padding:18px; text-align:center; box-shadow:0 4px 16px rgba(0,0,0,0.07); }
@@ -181,16 +247,22 @@ body::before {
 .result-stat .r-lbl { font-size:0.68rem; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; }
 .result-stat.green .r-val { color:var(--green); }
 .result-stat.red .r-val { color:var(--red); }
-.result-stat.purple .r-val { color:var(--primary); }
-.result-stat.orange .r-val { color:var(--secondary); }
-.missed-section { width:100%; background:#fff5f5; border-radius:20px; padding:16px; margin-bottom:20px; border:2px solid #fecaca; }
-.missed-title { font-size:0.72rem; font-weight:800; color:var(--red); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:10px; }
+.result-stat.blue .r-val { color:#0ea5e9; }
+.result-stat.orange .r-val { color:#f97316; }
+
+.missed-section { width:100%; background:#fff7ed; border-radius:20px; padding:16px; margin-bottom:20px; border:2px solid #fed7aa; }
+.missed-title { font-size:0.72rem; font-weight:800; color:#ea580c; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:10px; }
 .missed-list { display:flex; flex-wrap:wrap; gap:8px; }
-.missed-fact { background:white; border-radius:12px; padding:8px 14px; font-family:'Fredoka One',sans-serif; font-size:1rem; color:var(--red); box-shadow:0 2px 8px rgba(239,68,68,0.1); }
+.missed-fact { background:white; border-radius:12px; padding:8px 14px; font-family:'Fredoka One',sans-serif; font-size:1rem; color:#ea580c; box-shadow:0 2px 8px rgba(249,115,22,0.1); }
 .missed-fact .answer { font-size:0.75rem; color:var(--muted); display:block; }
-.btn-play-again { width:100%; padding:20px; background:linear-gradient(135deg,#a855f7,#7c3aed); color:white; font-family:'Fredoka One',sans-serif; font-size:1.5rem; border:none; border-radius:20px; cursor:pointer; box-shadow:0 8px 24px rgba(168,85,247,0.4); transition:transform 0.15s; margin-bottom:10px; }
+
+.btn-play-again { width:100%; padding:20px; color:white; font-family:'Fredoka One',sans-serif; font-size:1.4rem; border:none; border-radius:20px; cursor:pointer; transition:transform 0.15s; margin-bottom:10px; }
+.btn-play-again.add { background:linear-gradient(135deg,#10b981,#059669); box-shadow:0 8px 24px rgba(16,185,129,0.4); }
+.btn-play-again.sub { background:linear-gradient(135deg,#f97316,#ea580c); box-shadow:0 8px 24px rgba(249,115,22,0.4); }
+.btn-play-again.mul { background:linear-gradient(135deg,#a855f7,#7c3aed); box-shadow:0 8px 24px rgba(168,85,247,0.4); }
 .btn-play-again:active { transform:scale(0.97); }
-.btn-home { width:100%; padding:16px; background:white; color:var(--primary); font-family:'Fredoka One',sans-serif; font-size:1.2rem; border:3px solid var(--primary); border-radius:20px; cursor:pointer; transition:transform 0.15s; }
+
+.btn-home { width:100%; padding:16px; background:white; color:#64748b; font-family:'Fredoka One',sans-serif; font-size:1.15rem; border:3px solid #e2e8f0; border-radius:20px; cursor:pointer; transition:transform 0.15s; }
 .btn-home:active { transform:scale(0.97); }
 </style>
 </head>
@@ -199,24 +271,22 @@ body::before {
 <div class="confetti-wrap" id="confettiWrap"></div>
 <div class="toast" id="toast"></div>
 
-<!-- START -->
+<!-- ===== START ===== -->
 <div class="screen active" id="startScreen">
-  <div class="star-ring">⭐</div>
-  <div class="game-title">Kyla's Math<br>Challenge!</div>
-  <div class="game-sub">The facts that make you a math genius</div>
-  <div class="info-cards">
-    <div class="info-card"><div class="icon">🃏</div><div class="lbl">Facts</div><div class="val">20</div></div>
-    <div class="info-card"><div class="icon">🧠</div><div class="lbl">Method</div><div class="val">Smart</div></div>
-    <div class="info-card"><div class="icon">🎯</div><div class="lbl">Style</div><div class="val">Pick It</div></div>
+  <div class="brain-emoji">🧠</div>
+  <div class="game-title">No-Trick<br>Math!</div>
+  <div class="game-sub">These facts have no shortcut.<br>You just have to <em>know</em> them!</div>
+  <div class="hint-box">
+    <div class="hint-box-title">How it works</div>
+    <p>Adding ➕ Subtracting ➖ Multiplying ✖️ Fact Families 🔗 — all mixed together! Wrong answers come back sooner. Master each fact twice to win. 🌟</p>
   </div>
-  <button class="btn-start" onclick="startGame()">Let's Go! 🚀</button>
-  <div class="facts-preview">
-    <div class="facts-preview-title">Today's Facts</div>
-    <div class="facts-grid" id="factsGrid"></div>
-  </div>
+  <button class="btn-mode mul" style="width:100%;margin-top:22px;padding:28px;font-size:1.7rem;border-radius:22px;border:none;" onclick="startGame()">
+    <span class="mode-icon" style="font-size:2.4rem;">🚀</span>
+    <span class="mode-name" style="font-size:1.6rem;">Let's Go!</span>
+  </button>
 </div>
 
-<!-- GAME -->
+<!-- ===== GAME ===== -->
 <div class="screen" id="gameScreen">
   <div class="top-bar">
     <div class="score-pill correct"><span>✅</span><span class="val" id="scoreCorrect">0</span></div>
@@ -225,15 +295,16 @@ body::before {
   </div>
   <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
   <div class="card" id="questionCard">
-    <div class="card-stripe"></div>
-    <div class="question-label">What is...</div>
-    <div class="problem-display" id="problemDisplay">3 <span class="times">×</span> 5</div>
+    <div class="card-stripe" id="cardStripe"></div>
+    <div class="question-label" id="questionLabel">What is...</div>
+    <div class="problem-display" id="problemDisplay"></div>
+    <div class="fam-widget" id="famWidget" style="display:none"></div>
   </div>
   <div class="mastery-row" id="masteryRow"></div>
   <div class="choices" id="choicesGrid"></div>
 </div>
 
-<!-- RESULTS -->
+<!-- ===== RESULTS ===== -->
 <div class="screen" id="resultsScreen">
   <div class="trophy" id="trophyEmoji">🏆</div>
   <div class="result-title" id="resultTitle">Amazing!</div>
@@ -241,103 +312,215 @@ body::before {
   <div class="result-grid">
     <div class="result-stat green"><div class="r-icon">✅</div><div class="r-val" id="rCorrect">0</div><div class="r-lbl">Correct</div></div>
     <div class="result-stat red"><div class="r-icon">❌</div><div class="r-val" id="rWrong">0</div><div class="r-lbl">Missed</div></div>
-    <div class="result-stat purple"><div class="r-icon">⭐</div><div class="r-val" id="rStreak">0</div><div class="r-lbl">Best Streak</div></div>
+    <div class="result-stat blue"><div class="r-icon">⭐</div><div class="r-val" id="rStreak">0</div><div class="r-lbl">Best Streak</div></div>
     <div class="result-stat orange"><div class="r-icon">🎯</div><div class="r-val" id="rAccuracy">0%</div><div class="r-lbl">Accuracy</div></div>
   </div>
   <div class="missed-section" id="missedSection" style="display:none">
     <div class="missed-title">🔁 Practice these more:</div>
     <div class="missed-list" id="missedList"></div>
   </div>
-  <button class="btn-play-again" onclick="startGame()">Play Again! 🚀</button>
+  <button class="btn-play-again" id="btnPlayAgain" onclick="replayGame()">Play Again! 🚀</button>
   <button class="btn-home" onclick="goHome()">🏠 Home</button>
 </div>
 
 <script>
-const BASE_FACTS = [
-  [3,3,9],[3,5,15],[3,6,18],[3,7,21],
-  [5,5,25],[5,6,30],[5,7,35],
-  [6,6,36],[6,7,42],[7,7,49]
-];
+// ===== FACTS =====
+const FACTS = {
+  add: (() => {
+    const base = [
+      [6,6,12],[6,7,13],[6,8,14],[6,9,15],
+      [7,7,14],[7,8,15],[7,9,16],
+      [8,8,16],[8,9,17],[9,9,18]
+    ];
+    const all = [];
+    base.forEach(([a,b,ans]) => {
+      all.push({a,b,ans,key:`${a}+${b}`});
+      if(a!==b) all.push({a:b,b:a,ans,key:`${b}+${a}`});
+    });
+    return all;
+  })(),
 
-function buildAllFacts() {
-  const all = [];
-  BASE_FACTS.forEach(([a,b,ans]) => {
-    all.push({a,b,ans,key:`${a}×${b}`});
-    if (a!==b) all.push({a:b,b:a,ans,key:`${b}×${a}`});
-  });
-  return all;
+  sub: [
+    [12,6,6],[13,6,7],[13,7,6],[14,6,8],[14,8,6],
+    [14,7,7],[15,6,9],[15,9,6],[15,7,8],[15,8,7],
+    [16,7,9],[16,9,7],[16,8,8],[17,8,9],[17,9,8],[18,9,9]
+  ].map(([a,b,ans])=>({a,b,ans,key:`${a}-${b}`})),
+
+  mul: (() => {
+    const base = [
+      [3,3,9],[3,5,15],[3,6,18],[3,7,21],
+      [5,5,25],[5,6,30],[5,7,35],
+      [6,6,36],[6,7,42],[7,7,49]
+    ];
+    const all = [];
+    base.forEach(([a,b,ans]) => {
+      all.push({a,b,ans,key:`${a}×${b}`});
+      if(a!==b) all.push({a:b,b:a,ans,key:`${b}×${a}`});
+    });
+    return all;
+  })(),
+
+  // Fact families: missing addend questions  "a + ___ = c"  and  "___ + b = c"
+  fam: (() => {
+    const base = [
+      [6,6,12],[6,7,13],[6,8,14],[6,9,15],
+      [7,7,14],[7,8,15],[7,9,16],
+      [8,8,16],[8,9,17],[9,9,18]
+    ];
+    const all = [];
+    base.forEach(([a,b,c]) => {
+      // "a + ___ = c"  (find b)
+      all.push({display:`${a} + ___ = ${c}`, ans:b, key:`fam:${a}+?=${c}`});
+      // "___ + b = c"  (find a) — skip if a===b to avoid duplicate
+      if(a!==b) all.push({display:`___ + ${b} = ${c}`, ans:a, key:`fam:?+${b}=${c}`});
+    });
+    return all;
+  })()
+};
+
+const OP_SYMBOL = { add:'+', sub:'−', mul:'×' };
+
+function getAnswerPool(mode) {
+  if(mode==='fam') return [...new Set([...FACTS.add.map(f=>f.ans), ...Array.from({length:9},(_,i)=>i+1)])];
+  return [...new Set(FACTS[mode].map(f=>f.ans))];
 }
 
-// All possible answers — used for distractor pool
-const ALL_ANSWERS = [...new Set(BASE_FACTS.map(f=>f[2]))];
-
-let queue=[], currentCard=null;
+// ===== STATE =====
+let queue=[], currentCard=null, currentMode='add';
 let scoreCorrect=0, scoreWrong=0, streak=0, bestStreak=0;
 let correctCount={}, wrongFacts={}, masteryMap={};
 let locked=false;
 
 function startGame() {
-  const all = buildAllFacts();
+  // Combine all facts, tag each with its mode
+  const all = [
+    ...FACTS.add.map(f=>({...f, mode:'add'})),
+    ...FACTS.sub.map(f=>({...f, mode:'sub'})),
+    ...FACTS.mul.map(f=>({...f, mode:'mul'})),
+    ...FACTS.fam.map(f=>({...f, mode:'fam'}))
+  ];
   queue = shuffle([...all]);
   currentCard=null; scoreCorrect=0; scoreWrong=0; streak=0; bestStreak=0;
   correctCount={}; wrongFacts={}; masteryMap={}; locked=false;
   all.forEach(f=>{ masteryMap[f.key]='unseen'; correctCount[f.key]=0; });
+
+  // Mixed mode — use purple/rainbow style
+  document.getElementById('streakDisplay').className = 'streak-display mul';
+  document.getElementById('progressFill').className = 'progress-fill mul';
+  document.getElementById('cardStripe').className = 'card-stripe mul';
+  document.getElementById('btnPlayAgain').className = 'btn-play-again mul';
+
   updateUI();
   showScreen('gameScreen');
   buildMasteryRow(all);
   nextCard();
 }
 
+function replayGame() { startGame(); }
+
 function nextCard() {
-  if (queue.length===0){ endGame(); return; }
+  if(queue.length===0){ endGame(); return; }
   currentCard = queue.shift();
   locked = false;
   renderCard();
 }
 
 function renderCard() {
-  document.getElementById('problemDisplay').innerHTML =
-    `${currentCard.a} <span class="times">×</span> ${currentCard.b}`;
+  const mode = currentCard.mode;
+  const pd = document.getElementById('problemDisplay');
+  const fw = document.getElementById('famWidget');
+  const ql = document.getElementById('questionLabel');
+
+  if(mode==='fam'){
+    pd.style.display='none';
+    fw.style.display='flex';
+    ql.textContent = 'Find the missing number!';
+    renderFamWidget();
+  } else {
+    fw.style.display='none';
+    pd.style.display='';
+    const sym = OP_SYMBOL[mode];
+    pd.innerHTML = `${currentCard.a} <span class="op ${mode}">${sym}</span> ${currentCard.b}`;
+    ql.textContent = 'What is...';
+  }
   animateCard('pop');
   renderChoices();
   updateProgress();
 }
 
-function getWrongChoices(correct, count) {
-  const pool = new Set();
-  ALL_ANSWERS.forEach(a=>{ if(a!==correct) pool.add(a); });
-  // nearby values for extra plausibility
-  for(let d=-8;d<=8;d++){ if(d!==0&&correct+d>0&&correct+d<100) pool.add(correct+d); }
-  return shuffle([...pool].filter(v=>v!==correct)).slice(0,count);
+function renderFamWidget() {
+  const fw = document.getElementById('famWidget');
+  // Parse the family from the key e.g. "fam:6+?=13" or "fam:?+7=13"
+  const key = currentCard.key;
+  const isTopMissing = key.includes('fam:?+');
+  // Extract numbers from display: "6 + ___ = 13" or "___ + 7 = 13"
+  const nums = currentCard.display.match(/\d+/g).map(Number);
+  // nums[0]=known left, nums[1]=total OR nums[0]=known right, nums[1]=total
+  let topNum, leftNum, rightNum;
+  // Top = sum, left = first addend, right = second addend
+  if(isTopMissing){
+    // "___ + b = c"  missing = a (top is ?)
+    rightNum = nums[0]; topNum = nums[1]; leftNum = '?';
+  } else {
+    // "a + ___ = c"  missing = b (right is ?)
+    leftNum = nums[0]; topNum = nums[1]; rightNum = '?';
+  }
+
+  fw.innerHTML = `
+    <div class="fam-triangle-wrap">
+      <svg class="fam-lines" viewBox="0 0 220 190" xmlns="http://www.w3.org/2000/svg">
+        <line x1="110" y1="58" x2="34" y2="148" stroke="#d8b4fe" stroke-width="3" stroke-linecap="round" stroke-dasharray="6 4"/>
+        <line x1="110" y1="58" x2="186" y2="148" stroke="#d8b4fe" stroke-width="3" stroke-linecap="round" stroke-dasharray="6 4"/>
+        <line x1="34" y1="156" x2="186" y2="156" stroke="#d8b4fe" stroke-width="3" stroke-linecap="round" stroke-dasharray="6 4"/>
+      </svg>
+      <div class="fam-num top">${topNum}</div>
+      <div class="fam-num left ${leftNum==='?'?'mystery':''}">${leftNum==='?'?'?':leftNum}</div>
+      <div class="fam-num right ${rightNum==='?'?'mystery':''}">${rightNum==='?'?'?':rightNum}</div>
+    </div>
+    <div class="fam-equation">
+      ${isTopMissing
+        ? `<span class="fam-blank">?</span> + ${rightNum} = ${topNum}`
+        : `${leftNum} + <span class="fam-blank">?</span> = ${topNum}`
+      }
+    </div>
+  `;
+}
+
+function getWrongChoice(correct, mode) {
+  const pool = getAnswerPool(mode);
+  const nearby = [];
+  for(let d=-6;d<=6;d++){ if(d!==0){ const v=correct+d; if(v>0&&v<100) nearby.push(v); } }
+  const combined = shuffle([...new Set([...pool,...nearby])].filter(v=>v!==correct));
+  return combined[0];
 }
 
 function renderChoices() {
   const correct = currentCard.ans;
-  const choices = shuffle([correct, ...getWrongChoices(correct, 1)]);
+  const wrong = getWrongChoice(correct, currentCard.mode);
+  const choices = shuffle([correct, wrong]);
   const grid = document.getElementById('choicesGrid');
   grid.innerHTML='';
   choices.forEach(val=>{
-    const btn = document.createElement('button');
+    const btn=document.createElement('button');
     btn.className='choice-btn';
     btn.textContent=val;
-    btn.onclick=()=>pickAnswer(val, btn);
+    btn.onclick=()=>pickAnswer(val,btn);
     grid.appendChild(btn);
   });
 }
 
 function pickAnswer(val, btn) {
-  if (locked) return;
-  locked = true;
-  const correct = currentCard.ans;
-  const isRight = val===correct;
+  if(locked) return;
+  locked=true;
+  const correct=currentCard.ans;
+  const isRight=val===correct;
 
-  // Disable all, highlight correct
   document.querySelectorAll('.choice-btn').forEach(b=>{
     b.disabled=true;
     if(parseInt(b.textContent)===correct) b.classList.add('reveal-correct');
   });
 
-  if (isRight) {
+  if(isRight){
     btn.classList.remove('reveal-correct');
     btn.classList.add('correct-choice');
     scoreCorrect++; streak++;
@@ -349,7 +532,7 @@ function pickAnswer(val, btn) {
       const at=Math.min(3+Math.floor(Math.random()*3),queue.length);
       queue.splice(at,0,{...currentCard});
     }
-    showToast(getCorrectMsg(), false);
+    showToast(getCorrectMsg(),'good');
     animateCard('pop');
     if(streak%3===0) launchConfetti();
   } else {
@@ -360,20 +543,21 @@ function pickAnswer(val, btn) {
     correctCount[currentCard.key]=0;
     const at=Math.min(1+Math.floor(Math.random()*2),queue.length);
     queue.splice(at,0,{...currentCard});
-    showToast(`It's ${correct}! 💡`, true);
+    showToast(`It's ${correct}! 💡`,'bad');
     animateCard('shake');
   }
 
   updateUI();
   updateMasteryRow();
 
-  const allLearned = Object.values(masteryMap).every(v=>v==='learned');
+  const allLearned=Object.values(masteryMap).every(v=>v==='learned');
   setTimeout(()=>{
     if(allLearned||queue.length===0){ endGame(); return; }
     nextCard();
-  }, isRight ? 600 : 1400);
+  }, isRight?600:1400);
 }
 
+// ===== UI HELPERS =====
 function updateUI() {
   document.getElementById('scoreCorrect').textContent=scoreCorrect;
   document.getElementById('scoreWrong').textContent=scoreWrong;
@@ -393,16 +577,19 @@ function buildMasteryRow(all) {
   row.innerHTML='';
   all.forEach(f=>{
     const chip=document.createElement('div');
-    chip.className='mastery-chip';
-    chip.id='chip-'+f.key.replace('×','x');
-    chip.textContent=f.key;
+    chip.className='mastery-chip'+(f.mode==='fam'?' fam':'');
+    const safeKey=f.key.replace(/[+\-×?=:]/g,c=>({'+':'p','-':'m','×':'x','?':'q','=':'e',':':'c'}[c]||'_'));
+    chip.id='chip-'+safeKey;
+    // Show a shorter label for family chips
+    chip.textContent = f.mode==='fam' ? f.display.replace('= ','=') : f.key;
     row.appendChild(chip);
   });
 }
 
 function updateMasteryRow() {
   Object.entries(masteryMap).forEach(([key,val])=>{
-    const chip=document.getElementById('chip-'+key.replace('×','x'));
+    const safeKey=key.replace(/[+\-×?=:]/g,c=>({'+':'p','-':'m','×':'x','?':'q','=':'e',':':'c'}[c]||'_'));
+    const chip=document.getElementById('chip-'+safeKey);
     if(!chip) return;
     chip.className='mastery-chip';
     if(val==='seen') chip.classList.add('seen');
@@ -419,20 +606,20 @@ function animateCard(type) {
 }
 
 let toastTimer;
-function showToast(msg, isWrong) {
+function showToast(msg,type) {
   const t=document.getElementById('toast');
   t.textContent=msg;
-  t.className='toast'+(isWrong?' wrong-toast':'')+' show';
+  t.className='toast '+type+' show';
   clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>{ t.className='toast'; }, isWrong?1400:900);
+  toastTimer=setTimeout(()=>{ t.className='toast'; },type==='bad'?1400:900);
 }
 
-const correctMsgs=['Perfect! ⭐','You got it! 🎉','Amazing! 🚀','Nailed it! 💥','Yes!! 🌟','Boom! 🔥','So smart! 💜','Woohoo! 🎊','Incredible! 🌈'];
-function getCorrectMsg(){ return correctMsgs[Math.floor(Math.random()*correctMsgs.length)]; }
+const CORRECT_MSGS=['Perfect! ⭐','You got it! 🎉','Amazing! 🚀','Nailed it! 💥','Yes!! 🌟','Boom! 🔥','So smart! 💜','Woohoo! 🎊','Incredible! 🌈','That\'s it! 🎯'];
+function getCorrectMsg(){ return CORRECT_MSGS[Math.floor(Math.random()*CORRECT_MSGS.length)]; }
 
 function launchConfetti() {
   const wrap=document.getElementById('confettiWrap');
-  const colors=['#a855f7','#f59e0b','#22c55e','#ef4444','#3b82f6','#ec4899','#fff'];
+  const colors=['#10b981','#a855f7','#f97316','#ef4444','#3b82f6','#ec4899','#f59e0b','#fff'];
   for(let i=0;i<45;i++){
     const p=document.createElement('div');
     p.className='confetti-piece';
@@ -448,6 +635,7 @@ function launchConfetti() {
   }
 }
 
+// ===== END GAME =====
 function endGame() {
   launchConfetti(); launchConfetti();
   const total=scoreCorrect+scoreWrong;
@@ -459,12 +647,14 @@ function endGame() {
 
   let trophy='🏆',title='Amazing!',msg='You crushed it, Kyla! 💜';
   if(accuracy===100){trophy='🌟';title='PERFECT!';msg='Every single one right! You\'re incredible! 🎉';}
-  else if(accuracy>=80){trophy='🏆';title='Awesome!';msg='You\'re becoming a math superstar! 🚀';}
+  else if(accuracy>=80){trophy='🏆';title='Awesome!';msg='You\'re a no-trick master! 🚀';}
   else if(accuracy>=60){trophy='⭐';title='Good job!';msg='Keep practicing — you\'re getting there! 💪';}
   else{trophy='💪';title='Nice try!';msg='Every practice makes you stronger! 🔥';}
 
   document.getElementById('trophyEmoji').textContent=trophy;
-  document.getElementById('resultTitle').textContent=title;
+  const rt=document.getElementById('resultTitle');
+  rt.textContent=title;
+  rt.className='result-title mul';
   document.getElementById('resultMsg').textContent=msg;
 
   const missed=Object.entries(wrongFacts).filter(([,v])=>v>0);
@@ -474,10 +664,17 @@ function endGame() {
     const ml=document.getElementById('missedList');
     ml.innerHTML='';
     missed.sort((a,b)=>b[1]-a[1]).forEach(([key])=>{
-      const [a,b]=key.split('×').map(Number);
+      const allFacts=[...FACTS.add,...FACTS.sub,...FACTS.mul,...FACTS.fam];
+      const fact=allFacts.find(f=>f.key===key);
+      if(!fact) return;
       const chip=document.createElement('div');
       chip.className='missed-fact';
-      chip.innerHTML=`${key} <span class="answer">= ${a*b}</span>`;
+      if(fact.display){
+        chip.innerHTML=`${fact.display} <span class="answer">= ${fact.ans}</span>`;
+      } else {
+        const sym=OP_SYMBOL[fact.mode]||'?';
+        chip.innerHTML=`${fact.a}${sym}${fact.b} <span class="answer">= ${fact.ans}</span>`;
+      }
       ml.appendChild(chip);
     });
   } else { ms.style.display='none'; }
@@ -487,18 +684,6 @@ function endGame() {
 function goHome(){ showScreen('startScreen'); }
 function showScreen(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
 function shuffle(arr){ return arr.sort(()=>Math.random()-0.5); }
-
-// Init
-(function(){
-  const all=buildAllFacts();
-  const grid=document.getElementById('factsGrid');
-  all.forEach(f=>{
-    const chip=document.createElement('div');
-    chip.className='fact-chip';
-    chip.textContent=`${f.a}×${f.b}`;
-    grid.appendChild(chip);
-  });
-})();
 </script>
 </body>
 </html>
